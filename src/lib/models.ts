@@ -1,17 +1,17 @@
 import { debugLog, errorLog } from '@/logs';
 import { ChatOpenAI } from '@langchain/openai';
 
-export type ChatModel = 'gpt-4.1' | 'gpt-4.1-mini';
-export type TranslateModel = 'gpt-4.1' | 'gpt-4.1-mini';
+export type ChatModel = 'github_copilot/gpt-5-mini' | 'openai/gpt-5-mini';
+export type TranslateModel = 'github_copilot/gpt-5-mini' | 'openai/gpt-5-mini';
 
 export interface ModelPreset {
+  openaiEndpoint?: string;
   openaiKey?: string;
   modelName: string;
 }
 
 export interface ModelOptions {
   maxTokens?: number;
-  temperature?: number;
   streaming?: boolean;
   modelPreset: ModelPreset;
   responseFormat?: { type: 'json_object' };
@@ -21,22 +21,23 @@ export interface OpenAIChatOptions {
   modelName: string;
   apiKey: string;
   maxTokens: number;
-  temperature: number;
   streaming: boolean;
+  configuration: {
+    baseURL: string;
+  }
   modelKwargs?: { response_format?: { type: 'json_object' } }; // Added for JSON mode
 }
 
 export async function getModelInstance({
   maxTokens = -1,
-  temperature = 0.7,
   streaming = false,
   modelPreset,
   responseFormat,
 }: ModelOptions): Promise<ChatOpenAI> {
-  const { openaiKey, modelName } = modelPreset;
+  const { openaiKey, openaiEndpoint, modelName } = modelPreset;
 
-  if (!openaiKey) {
-    const errMsg = 'OpenAI API key is not set. Cannot create LLM instance.';
+  if (!openaiKey || !openaiEndpoint) {
+    const errMsg = 'OpenAI API key or Endpoint is not set. Cannot create LLM instance.';
     errorLog(errMsg);
     throw new Error(errMsg);
   }
@@ -44,8 +45,10 @@ export async function getModelInstance({
   try {
     const options: OpenAIChatOptions = {
       modelName,
-      temperature,
       apiKey: openaiKey,
+      configuration: {
+        baseURL: openaiEndpoint
+      },
       streaming,
       maxTokens,
     };

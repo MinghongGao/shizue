@@ -4,8 +4,8 @@ import { chromeStorageBackend } from '@/lib/storageBackend';
 import { useAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 
-export const defaultChatModel: ChatModel = 'gpt-4.1';
-export const defaultTranslateModel: TranslateModel = 'gpt-4.1-mini';
+export const defaultChatModel: ChatModel = 'github_copilot/gpt-5-mini';
+export const defaultTranslateModel: TranslateModel = 'github_copilot/gpt-5-mini';
 
 export const chatModelAtom = atomWithStorage<ChatModel>(
   STORAGE_CHAT_MODEL,

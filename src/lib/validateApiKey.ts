@@ -1,13 +1,13 @@
 import { debugLog } from '@/logs';
 
-export const validateApiKey = async (apiKey: string) => {
-  if (!apiKey || !apiKey.startsWith('sk-')) {
-    debugLog('Invalid API key');
+export const validateApiEndpointAndKey = async (apiKey: string, endpoint: string) => {
+  if (!endpoint || !apiKey || !apiKey.startsWith('sk-')) {
+    debugLog('Invalid API key or endpoint');
     return false;
   }
 
   try {
-    const response = await fetch('https://api.openai.com/v1/models', {
+    const response = await fetch(endpoint, {
       headers: {
         Authorization: `Bearer ${apiKey}`,
       },

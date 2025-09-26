@@ -253,15 +253,15 @@ const Toggle = () => {
                             size="small"
                             options={[
                               {
-                                value: 'gpt-4.1',
-                                label: 'GPT 4.1',
+                                value: 'github_copilot/gpt-5-mini',
+                                label: 'github_copilot/gpt-5-mini',
                                 className: `sz:font-ycom ${
                                   theme == 'dark' ? 'sz:text-white' : 'sz:text-gray-700'
                                 }`,
                               },
                               {
-                                value: 'gpt-4.1-mini',
-                                label: 'GPT 4.1 Mini',
+                                value: 'openai/gpt-5-mini',
+                                label: 'openai/gpt-5-mini',
                                 className: `sz:font-ycom ${
                                   theme == 'dark' ? 'sz:text-white' : 'sz:text-gray-700'
                                 }`,

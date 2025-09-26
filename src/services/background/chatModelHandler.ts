@@ -1,6 +1,10 @@
 import { STREAM_FLUSH_THRESHOLD_0, STREAM_FLUSH_THRESHOLD_1 } from '@/config/constants';
 import { getCurrentLanguage } from '@/entrypoints/background/states/language';
-import { getCurrentChatModel, getCurrentOpenaiKey } from '@/entrypoints/background/states/models';
+import {
+  getCurrentChatModel,
+  getCurrentOpenaiEndpoint,
+  getCurrentOpenaiKey,
+} from '@/entrypoints/background/states/models';
 import { ActionType } from '@/hooks/global';
 import { db, loadThread } from '@/lib/indexDB';
 import { getModelInstance, ModelPreset } from '@/lib/models';
@@ -11,7 +15,8 @@ import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from '@langchain/
 function getChatModelPreset(): ModelPreset {
   const openaiKey = getCurrentOpenaiKey();
   const modelName = getCurrentChatModel();
-  return { openaiKey, modelName };
+  const openaiEndpoint = getCurrentOpenaiEndpoint();
+  return { openaiKey, modelName, openaiEndpoint };
 }
 
 export class ChatModelHandler {
@@ -29,7 +34,6 @@ export class ChatModelHandler {
     try {
       const llm = await getModelInstance({
         streaming: true,
-        temperature: actionType === 'askForSummary' ? 0.3 : 0.7,
         modelPreset: getChatModelPreset(),
       });
       const stream = await llm.stream(messagesForModel, { signal: abortController.signal });
@@ -171,6 +175,8 @@ export class ChatModelHandler {
 
       const memory = (await loadUserMemory()).text; // TODO
 
+      console.log("123")
+      debugger;
       const currentLang = getCurrentLanguage();
       const initialSystemMessage = getInitialSystemMessage(currentLang);
       const initialAIMessage = getInitialAIMessage(currentLang);

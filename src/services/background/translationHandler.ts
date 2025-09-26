@@ -1,5 +1,6 @@
 import { getTranslationTargetLanguage } from '@/entrypoints/background/states/language';
 import {
+  getCurrentOpenaiEndpoint,
   getCurrentOpenaiKey,
   getCurrentTranslateModel,
 } from '@/entrypoints/background/states/models';
@@ -41,8 +42,9 @@ interface BatchTranslationJsonResponseFormat {
 
 function getTranslationModelPreset(): ModelPreset {
   const openaiKey = getCurrentOpenaiKey();
+  const openaiEndpoint = getCurrentOpenaiEndpoint();
   const modelName = getCurrentTranslateModel();
-  return { openaiKey, modelName };
+  return { openaiKey, openaiEndpoint, modelName };
 }
 
 export class TranslationHandler {
@@ -50,7 +52,8 @@ export class TranslationHandler {
 
   public async canTranslate(): Promise<boolean> {
     const openaiKey = getCurrentOpenaiKey();
-    return Boolean(openaiKey);
+    const openaiEndpoint = getCurrentOpenaiEndpoint();
+    return Boolean(openaiKey) && Boolean(openaiEndpoint);
   }
 
   public async translateYoutubeCaption(
@@ -62,7 +65,6 @@ export class TranslationHandler {
       const prompt = getYoutubeCaptionTranslationPrompt(captions, targetLanguage, metadata);
 
       const llm = await getModelInstance({
-        temperature: 0.1,
         streaming: false,
         modelPreset: getTranslationModelPreset(),
         responseFormat: { type: 'json_object' },
@@ -151,7 +153,6 @@ export class TranslationHandler {
       const prompt = getHtmlTranslationPrompt(text, targetLanguage);
 
       const llm = await getModelInstance({
-        temperature: 0.1,
         maxTokens: 8000,
         streaming: false,
         modelPreset: getTranslationModelPreset(),
@@ -180,7 +181,6 @@ export class TranslationHandler {
       const batchPrompt = getHtmlTranslationBatchPrompt(serializedTextBatch, targetLanguage);
 
       const llm = await getModelInstance({
-        temperature: 0.1,
         maxTokens: 5000,
         streaming: false,
         modelPreset: getTranslationModelPreset(),

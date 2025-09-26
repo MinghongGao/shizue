@@ -6,11 +6,11 @@ import {
   useShowYoutubeCaptionToggle,
 } from '@/hooks/layout';
 import { useChatModel, useTranslateModel } from '@/hooks/models';
-import { useSetOpenAIKey } from '@/hooks/settings';
+import { useSetOpenAIEndpoint, useSetOpenAIKey } from '@/hooks/settings';
 import { languageOptions } from '@/lib/language';
 import { ChatModel, TranslateModel } from '@/lib/models';
 import { getOS } from '@/lib/userOS';
-import { validateApiKey } from '@/lib/validateApiKey';
+import { validateApiEndpointAndKey } from '@/lib/validateApiKey';
 import { debugLog } from '@/logs';
 import { SmileOutlined } from '@ant-design/icons';
 import { Button, Checkbox, Input, Select } from 'antd';
@@ -24,8 +24,10 @@ const SettingsModalContent = () => {
   const [isInvalidApiKey, setIsInvalidApiKey] = useState(false);
   const [canProceed, setCanProceed] = useState(true);
   const [apiKey, setApiKey] = useState('');
+  const [apiEndpoint, setApiEndpoint] = useState('');
   const [isValidateHovered, setIsValidateHovered] = useState(false);
   const setOpenAIKey = useSetOpenAIKey();
+  const setOpenAIEndpoint = useSetOpenAIEndpoint();
   const [chatModel, setChatModel] = useChatModel();
   const [translateModel, setTranslateModel] = useTranslateModel();
   const [theme, setTheme] = useTheme();
@@ -67,9 +69,10 @@ const SettingsModalContent = () => {
 
   const onClickValidate = async () => {
     setIsLoading(true);
-    const isValid = await validateApiKey(apiKey);
+    const isValid = await validateApiEndpointAndKey(apiKey, apiEndpoint);
     if (isValid) {
       setOpenAIKey(apiKey);
+      setOpenAIEndpoint(apiEndpoint);
       setIsInvalidApiKey(false);
       setCanProceed(true);
     } else {
@@ -154,6 +157,12 @@ const SettingsModalContent = () => {
           <div className="sz:flex sz:flex-row sz:items-center sz:w-50 sz:mb-1">
             <Input
               className="sz:font-ycom sz:text-sm sz:mr-[5px] sz:h-8"
+              placeholder="https://"
+              value={apiEndpoint}
+              onChange={(e) => setApiEndpoint(e.target.value)}
+            />
+            <Input
+              className="sz:font-ycom sz:text-sm sz:mr-[5px] sz:h-8"
               placeholder="sk-XXX......"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
@@ -189,13 +198,13 @@ const SettingsModalContent = () => {
             className="sz:font-ycom sz:w-50"
             options={[
               {
-                value: 'gpt-4.1',
-                label: 'GPT 4.1',
+                value: 'github_copilot/gpt-5-mini',
+                label: 'github_copilot/gpt-5-mini',
                 className: 'sz:font-ycom',
               },
               {
-                value: 'gpt-4.1-mini',
-                label: 'GPT 4.1 Mini',
+                value: 'openai/gpt-5-mini',
+                label: 'openai/gpt-5-mini',
                 className: 'sz:font-ycom',
               },
               {

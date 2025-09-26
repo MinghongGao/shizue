@@ -1,6 +1,6 @@
 import { useThemeValue } from '@/hooks/layout';
-import { useSetOpenAIKey } from '@/hooks/settings';
-import { validateApiKey } from '@/lib/validateApiKey';
+import { useSetOpenAIEndpoint, useSetOpenAIKey } from '@/hooks/settings';
+import { validateApiEndpointAndKey } from '@/lib/validateApiKey';
 import { SmileOutlined } from '@ant-design/icons';
 import { Button, Input, Select } from 'antd';
 import { useState } from 'react';
@@ -12,12 +12,16 @@ export default function StepProvider({ onBack }: { onBack: () => void }) {
   const [isInvalidApiKey, setIsInvalidApiKey] = useState(false);
   const [canProceed, setCanProceed] = useState(false);
   const [apiKey, setApiKey] = useState(
-    process.env.NODE_ENV === 'development' ? import.meta.env.WXT_OPENAI_API_KEY : ''
+    process.env.NODE_ENV === 'development' ? import.meta.env.OPENAI_API_KEY : ''
   );
+  const [endpoint, setEndpoint] = useState(
+    process.env.NODE_ENV === "development" ? import.meta.env.OPENAPI_ENDPOINT : ""
+  )
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   const setOpenAIKey = useSetOpenAIKey();
+  const setOpenAIEndpoint = useSetOpenAIEndpoint();
   const theme = useThemeValue();
 
   const lines = [
@@ -31,9 +35,10 @@ export default function StepProvider({ onBack }: { onBack: () => void }) {
 
   const onClickValidate = async () => {
     setIsLoading(true);
-    const isValid = await validateApiKey(apiKey);
+    const isValid = await validateApiEndpointAndKey(apiKey, endpoint);
     if (isValid) {
       setOpenAIKey(apiKey);
+      setOpenAIEndpoint(endpoint);
       setIsInvalidApiKey(false);
       setCanProceed(true);
     } else {
@@ -85,6 +90,14 @@ export default function StepProvider({ onBack }: { onBack: () => void }) {
       >
         <div>{lines[1]}</div>
         <div>{lines[2]}</div>
+      </div>
+      <div className="sz:flex sz:flex-row sz:items-center sz:w-80">
+        <Input
+          placeholder="https://..."
+          className="sz:font-ycom sz:mr-[5px]"
+          value={endpoint}
+          onChange={(e) => setEndpoint(e.target.value)}
+        />
       </div>
       <div className="sz:flex sz:flex-row sz:items-center sz:w-80">
         <Input

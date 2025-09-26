@@ -1,19 +1,22 @@
 import {
-  STORAGE_CHAT_MODEL,
+  STORAGE_CHAT_MODEL, STORAGE_OPENAI_ENDPOINT,
   STORAGE_OPENAI_KEY,
   STORAGE_TRANSLATE_MODEL,
 } from '@/config/constants';
 import { ChatModel, TranslateModel } from '@/lib/models';
 
-let currentChatModel: ChatModel = 'gpt-4.1';
-let currentTranslateModel: TranslateModel = 'gpt-4.1';
+let currentChatModel: ChatModel = 'github_copilot/gpt-5-mini';
+let currentTranslateModel: TranslateModel = 'github_copilot/gpt-5-mini';
 let openaiKey: string | undefined = undefined;
+let openaiEndpoint: string | undefined = undefined;
 
 export const getCurrentChatModel = () => currentChatModel;
 
 export const getCurrentTranslateModel = () => currentTranslateModel;
 
 export const getCurrentOpenaiKey = () => openaiKey;
+
+export const getCurrentOpenaiEndpoint = () => openaiEndpoint;
 
 export const changeChatModel = (model: ChatModel) => {
   currentChatModel = model;
@@ -25,6 +28,10 @@ export const changeTranslateModel = (model: TranslateModel) => {
 
 export const changeOpenaiKey = (key: string) => {
   openaiKey = key;
+};
+
+export const changeOpenaiEndpoint = (key: string) => {
+  openaiEndpoint = key;
 };
 
 export const modelListeners = () => {
@@ -43,6 +50,11 @@ export const modelListeners = () => {
     if (newOpenaiKey) changeOpenaiKey(newOpenaiKey);
   });
 
+  chrome.storage.local.get(STORAGE_OPENAI_ENDPOINT, (res) => {
+    const newOpenaiEndpoint = res.OPENAI_ENDPOINT as string;
+    if (newOpenaiEndpoint) changeOpenaiEndpoint(newOpenaiEndpoint);
+  });
+
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === 'local') {
       if (changes.CHAT_MODEL) {
@@ -56,6 +68,11 @@ export const modelListeners = () => {
       if (changes.OPENAI_KEY) {
         const newOpenaiKey = changes.OPENAI_KEY.newValue as string;
         if (newOpenaiKey) changeOpenaiKey(newOpenaiKey);
+      }
+
+      if (changes.OPENAI_ENDPOINT) {
+        const newOpenaiEndpoint = changes.OPENAI_ENDPOINT.newValue as string;
+        if (newOpenaiEndpoint) changeOpenaiEndpoint(newOpenaiEndpoint);
       }
     }
   });
